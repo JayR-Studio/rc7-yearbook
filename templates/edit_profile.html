@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="top-gold"></div>
+
+    <div class="brand-wrap">
+        <img
+            class="brand-logo"
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            alt="RC7 Logo"
+        >
+    </div>
+
+    <div class="login-panel">
+        <h1 class="panel-title">Edit Profile</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field">
+                <label class="label" for="profile_image">Replace Profile Picture</label>
+                <input class="input" type="file" id="profile_image" name="profile_image" accept="image/*">
+            </div>
+
+            <div class="field">
+                <label class="label" for="display_name">Display Name</label>
+                <input class="input" type="text" id="display_name" name="display_name" value="{{ profile.display_name or '' }}" required>
+            </div>
+
+            <div class="field">
+                <label class="label" for="state">State of Origin</label>
+                <input class="input" type="text" id="state" name="state" value="{{ profile.state_of_origin or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="hometown">Hometown</label>
+                <input class="input" type="text" id="hometown" name="hometown" value="{{ profile.hometown or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="squad">Squad</label>
+                <input class="input" type="text" id="squad" name="squad" value="{{ profile.squad or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="current_posting">Current Posting</label>
+                <input class="input" type="text" id="current_posting" name="current_posting" value="{{ profile.current_posting or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="date_of_birth">Date of Birth</label>
+                <input
+                    class="input"
+                    type="date"
+                    id="date_of_birth"
+                    name="date_of_birth"
+                    value="{{ profile.date_of_birth.strftime('%Y-%m-%d') if profile.date_of_birth else '' }}"
+                >
+            </div>
+
+            <div class="field">
+                <label class="label" for="phone_number">Phone Number</label>
+                <input class="input" type="text" id="phone_number" name="phone_number" value="{{ profile.phone_number or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="email">Email</label>
+                <input class="input" type="email" id="email" name="email" value="{{ profile.email or '' }}">
+            </div>
+
+            <div class="field">
+                <label class="label" for="about_me">About Me</label>
+                <textarea class="input" id="about_me" name="about_me" rows="5" style="padding: 12px;">{{ profile.about_me or '' }}</textarea>
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="login-button" type="submit">Save Changes</button>
+        </form>
+
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

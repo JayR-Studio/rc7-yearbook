@@ -1,0 +1,940 @@
+:root {
+    --gold-1: #5b4317;
+    --gold-2: #9b7423;
+    --gold-3: #d8b35a;
+    --gold-4: #f2d58a;
+    --gold-5: #b78a2c;
+    --bg-1: #050505;
+    --bg-2: #111111;
+    --bg-3: #1a1a1a;
+    --panel: #141414;
+    --line: #383838;
+    --text: #ead9b2;
+    --text-soft: #f5f1e6;
+    --danger: #ffb3b3;
+}
+
+/* Reset */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    min-height: 100vh;
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+    background: radial-gradient(
+        circle at center,
+        #3d3d3d 0%,
+        #1a1a1a 38%,
+        #000000 80%
+    );
+}
+
+/* Shared page wrapper */
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+/* Shared heading styles for all current and future pages */
+h1, h2, h3, h4, h5, h6,
+.panel-title {
+    font-family: "Playfair Display", serif;
+    color: var(--text-soft);
+    letter-spacing: 0.3px;
+}
+
+/* Top luxury gold strip */
+.top-gold {
+    width: 100%;
+    height: 14px;
+    background: linear-gradient(
+        90deg,
+        #caa14d,
+        #f2d58a,
+        #8a661f,
+        #f7df9b,
+        #b98c2a
+    );
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+
+/* Logo section */
+.brand-wrap {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 16px;
+    position: relative;
+    gap: 16px;
+}
+
+.brand-wrap::before,
+.brand-wrap::after {
+    content: "";
+    flex: 1;
+    max-width: 30%;
+    height: 2px;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #d8b35a,
+        transparent
+    );
+}
+
+.brand-logo {
+    width: 70px;
+    max-width: 100%;
+    height: auto;
+    display: block;
+    flex-shrink: 0;
+}
+
+/* Main auth/content panel */
+.login-panel {
+    width: min(92%, 700px);
+    background: linear-gradient(180deg, #181818, #101010);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
+    margin-bottom: 24px;
+}
+
+/* Title */
+.panel-title {
+    font-size: clamp(1.7rem, 2.5vw, 2rem);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Form fields */
+.field {
+    margin-bottom: 20px;
+}
+
+.label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: "Inter", sans-serif;
+    color: var(--text-soft);
+}
+
+.input-row {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input {
+    width: 100%;
+    min-height: 46px;
+    background: #111;
+    border: 1px solid rgba(214, 174, 74, 0.45);
+    color: white;
+    padding: 0 12px;
+    font-size: 1rem;
+    font-family: "Inter", sans-serif;
+    outline: none;
+    border-radius: 4px;
+}
+
+.input:focus {
+    border-color: #f2d58a;
+    box-shadow: 0 0 0 2px rgba(242, 213, 138, 0.12);
+}
+
+/* Password/show-hide icon button */
+.dropdown-icon {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    background: #222;
+    border: none;
+    border-left: 1px solid rgba(214, 174, 74, 0.45);
+    color: #caa14d;
+    cursor: pointer;
+    border-radius: 0 4px 4px 0;
+    font-size: 1rem;
+}
+
+.divider {
+    height: 1px;
+    background: var(--line);
+    margin: 20px 0;
+}
+
+/* Primary button */
+.login-button {
+    display: block;
+    width: min(100%, 220px);
+    margin: 0 auto;
+    min-height: 46px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    color: #1d1303;
+    background: linear-gradient(
+        180deg,
+        #f0d493,
+        #d0a447,
+        #ae7f21
+    );
+    transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.login-button:hover {
+    filter: brightness(1.05);
+}
+
+.login-button:active {
+    transform: scale(0.98);
+}
+
+/* Links + helper text */
+.links {
+    text-align: center;
+    margin-top: 16px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+}
+
+.links a {
+    color: var(--text);
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+.error-message,
+.form-error {
+    color: var(--danger);
+    text-align: center;
+    margin-top: 15px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Shared content containers for later pages */
+.content-shell,
+.profile-shell,
+.card-shell,
+.page-section {
+    width: min(92%, 1100px);
+    margin-inline: auto;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .top-gold {
+        height: 12px;
+    }
+
+    .brand-wrap {
+        padding: 18px 14px;
+        gap: 12px;
+    }
+
+    .brand-wrap::before,
+    .brand-wrap::after {
+        max-width: 24%;
+    }
+
+    .brand-logo {
+        width: 58px;
+    }
+
+    .login-panel {
+        width: min(94%, 700px);
+        padding: 24px 20px;
+    }
+
+    .panel-title {
+        font-size: 1.7rem;
+    }
+
+    .label {
+        font-size: 0.98rem;
+    }
+
+    .input,
+    .dropdown-icon,
+    .login-button {
+        min-height: 44px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    html {
+        font-size: 15px;
+    }
+
+    .top-gold {
+        height: 10px;
+    }
+
+    .page {
+        align-items: stretch;
+    }
+
+    .brand-wrap {
+        padding: 16px 12px;
+        gap: 10px;
+    }
+
+    .brand-wrap::before,
+    .brand-wrap::after {
+        max-width: 18%;
+        height: 1px;
+    }
+
+    .brand-logo {
+        width: 50px;
+    }
+
+    .login-panel {
+        width: calc(100% - 20px);
+        margin: 0 auto 20px;
+        padding: 20px 16px;
+    }
+
+    .panel-title {
+        font-size: 1.45rem;
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+    }
+
+    .field {
+        margin-bottom: 16px;
+    }
+
+    .label {
+        font-size: 0.95rem;
+        margin-bottom: 6px;
+    }
+
+    .input {
+        min-height: 42px;
+        font-size: 0.98rem;
+        padding: 0 10px;
+    }
+
+    .dropdown-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 0.95rem;
+    }
+
+    .divider {
+        margin: 16px 0;
+    }
+
+    .login-button {
+        width: 100%;
+        min-height: 44px;
+        font-size: 1rem;
+    }
+
+    .links {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .error-message,
+    .form-error {
+        font-size: 0.9rem;
+    }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+    .brand-wrap::before,
+    .brand-wrap::after {
+        display: none;
+    }
+
+    .brand-logo {
+        width: 46px;
+    }
+
+    .login-panel {
+        width: calc(100% - 16px);
+        padding: 18px 14px;
+    }
+
+    .panel-title {
+        font-size: 1.3rem;
+    }
+}
+.yearbook-header {
+    width: min(96%, 1200px);
+    margin: 18px auto 0;
+    padding: 14px 20px;
+    border-top: 1px solid rgba(216, 179, 90, 0.65);
+    border-bottom: 1px solid rgba(216, 179, 90, 0.35);
+    background: linear-gradient(180deg, #151515, #101010);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+}
+
+.yearbook-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+}
+
+.yearbook-title {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(1.3rem, 2.2vw, 2.2rem);
+    color: var(--text-soft);
+    text-align: center;
+}
+
+.toolbar-shell {
+    width: min(96%, 1200px);
+    margin: 18px auto 0;
+}
+
+.toolbar-form {
+    display: grid;
+    grid-template-columns: 1fr 220px 140px;
+    gap: 14px;
+    align-items: center;
+}
+
+.toolbar-input,
+.toolbar-select {
+    width: 100%;
+}
+
+.toolbar-button {
+    width: 100%;
+}
+
+.cards-shell {
+    width: min(96%, 1200px);
+    margin: 24px auto 0;
+}
+
+.officer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.officer-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: linear-gradient(180deg, #f4f0e6, #e4dfd1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 14px 24px rgba(0, 0, 0, 0.28);
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.officer-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(216, 179, 90, 0.45);
+}
+
+.officer-card-image-wrap {
+    height: 260px;
+    background: #d7d1c5;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.officer-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.35s ease;
+}
+
+.officer-card:hover .officer-card-image {
+    transform: scale(1.04);
+}
+
+.officer-card-body {
+    padding: 14px 14px 16px;
+}
+
+.officer-card-name {
+    font-family: "Playfair Display", serif;
+    font-size: 1.08rem;
+    color: #2e2617;
+    line-height: 1.35;
+    margin-bottom: 8px;
+}
+
+.officer-card-meta {
+    font-family: "Inter", sans-serif;
+    font-size: 0.9rem;
+    color: #5a503d;
+    margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+    .officer-card-image-wrap {
+        height: 220px;
+    }
+}
+
+@media (max-width: 480px) {
+    .officer-card-image-wrap {
+        height: 240px;
+    }
+}
+.pagination-shell {
+    width: min(96%, 1200px);
+    margin: 20px auto 30px;
+}
+
+.pagination-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.page-link {
+    min-width: 42px;
+    padding: 10px 14px;
+    text-align: center;
+    text-decoration: none;
+    font-family: "Inter", sans-serif;
+    color: var(--text-soft);
+    border: 1px solid rgba(216, 179, 90, 0.45);
+    background: linear-gradient(180deg, #181818, #101010);
+}
+
+.active-page {
+    background: linear-gradient(180deg, #f0d493, #d0a447, #ae7f21);
+    color: #1d1303;
+    font-weight: 700;
+}
+
+.ellipsis {
+    pointer-events: none;
+}
+
+@media (max-width: 992px) {
+    .officer-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .toolbar-form {
+        grid-template-columns: 1fr 200px 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .officer-card-image-wrap {
+        height: 220px;
+    }
+
+    .toolbar-form {
+        grid-template-columns: 1fr;
+    }
+
+    .officer-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .yearbook-brand {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    officer-card-image-wrap {
+        height: 240px;
+    }
+
+    .officer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .officer-card-body {
+        padding: 12px;
+    }
+
+    .officer-card-name {
+        font-size: 1.05rem;
+    }
+}
+
+.profile-shell {
+    width: min(98%, 1400px);
+    margin: 24px auto 30px;
+}
+
+.profile-card {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    background: linear-gradient(180deg, #181818, #101010);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 18px 36px rgba(0, 0, 0, 0.45);
+    padding: 24px;
+}
+
+.profile-image-column {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+.profile-main-image {
+    width: 100%;
+    max-width: 360px;
+    height: 460px;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    border: 2px solid rgba(216, 179, 90, 0.45);
+}
+
+.profile-main-placeholder {
+    width: 100%;
+    max-width: 360px;
+    height: 460px;
+    display: grid;
+    place-items: center;
+    font-family: "Inter", sans-serif;
+    color: #4e4638;
+    background: linear-gradient(180deg, #d9d2c4, #c6beae);
+    border: 2px solid rgba(216, 179, 90, 0.45);
+}
+
+.profile-details-column {
+    min-width: 0;
+}
+
+.profile-name {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(1.6rem, 2.2vw, 2.4rem);
+    color: var(--text-soft);
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.profile-subtitle {
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+.profile-divider {
+    height: 1px;
+    background: var(--line);
+    margin: 18px 0;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+}
+
+.profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-label {
+    font-family: "Inter", sans-serif;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #c4b38c;
+}
+
+.profile-value {
+    font-family: "Inter", sans-serif;
+    font-size: 1rem;
+    color: #f3efe4;
+    line-height: 1.5;
+}
+
+.profile-about-section {
+    margin-top: 8px;
+}
+
+.profile-section-title {
+    font-family: "Playfair Display", serif;
+    color: var(--text-soft);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+}
+
+.profile-about-text {
+    font-family: "Inter", sans-serif;
+    color: #f3efe4;
+    line-height: 1.7;
+}
+
+.profile-actions {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 992px) {
+    .profile-card {
+        grid-template-columns: 300px 1fr;
+    }
+
+    .profile-main-image,
+    .profile-main-placeholder {
+        max-width: 300px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+
+    .profile-image-column {
+        justify-content: center;
+    }
+
+    .profile-main-image,
+    .profile-main-placeholder {
+        max-width: 320px;
+        width: 100%;
+        height: 400px;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-shell {
+        width: calc(100% - 12px);
+    }
+
+    .profile-card {
+        padding: 14px;
+        gap: 18px;
+    }
+
+    .profile-main-image,
+    .profile-main-placeholder {
+        max-width: 100%;
+        height: 360px;
+    }
+
+    .profile-name {
+        font-size: 1.4rem;
+    }
+}
+
+textarea.input {
+    min-height: 140px;
+    resize: vertical;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    justify-self: end;
+    align-items: center;
+}
+
+.header-icon {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    border-radius: 50%;
+    border: 1px solid rgba(216, 179, 90, 0.25);
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+/* SVG styling */
+.header-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #d8b35a; /* your gold */
+    stroke-width: 1.8;
+}
+
+/* Hover effect (subtle luxury feel) */
+.header-icon:hover {
+    border-color: rgba(216, 179, 90, 0.6);
+    background: rgba(216, 179, 90, 0.05);
+}
+
+.header-icon:hover svg {
+    stroke: #f0d493;
+}
+
+.yearbook-brand {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    width: 100%;
+}
+
+.empty-state {
+    width: min(100%, 680px);
+    margin: 20px auto 0;
+    padding: 36px 24px;
+    text-align: center;
+    background: linear-gradient(180deg, #181818, #101010);
+    border: 1px solid rgba(216, 179, 90, 0.22);
+    box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
+}
+
+.empty-state-icon {
+    font-size: 2rem;
+    color: #d8b35a;
+    margin-bottom: 10px;
+}
+
+.empty-state-title {
+    font-family: "Playfair Display", serif;
+    color: var(--text-soft);
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.empty-state-text {
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 18px;
+}
+
+.profile-identity-block {
+    margin-bottom: 8px;
+}
+
+.profile-rank-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1d1303;
+    background: linear-gradient(180deg, #f0d493, #d0a447, #ae7f21);
+}
+
+.profile-name {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(1.75rem, 2.3vw, 2.5rem);
+    color: var(--text-soft);
+    margin-bottom: 8px;
+    line-height: 1.2;
+}
+
+.profile-subtitle {
+    font-family: "Inter", sans-serif;
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.success-banner {
+    width: 100%;
+    margin-bottom: 18px;
+    padding: 14px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: "Inter", sans-serif;
+    color: #f5f1e6;
+    background: linear-gradient(180deg, rgba(216, 179, 90, 0.18), rgba(216, 179, 90, 0.08));
+    border: 1px solid rgba(216, 179, 90, 0.35);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.22);
+    animation: fadeIn 0.3s ease;
+}
+
+.close-banner {
+    background: none;
+    border: none;
+    color: #e6d3a3;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: opacity 0.2s ease;
+}
+
+.close-banner:hover {
+    opacity: 0.7;
+}
+
+.success-banner.fade-out {
+    animation: fadeOut 0.35s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+}

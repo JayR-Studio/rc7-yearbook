@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Profile{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="top-gold"></div>
+
+    <div class="brand-wrap">
+        <img class="brand-logo"
+             src="{{ url_for('static', filename='images/logo.png') }}">
+    </div>
+
+    <div class="login-panel">
+        <h1 class="panel-title">Create Your Profile</h1>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="field">
+                <label class="label" for="profile_image">Profile Picture</label>
+                <input class="input" type="file" id="profile_image" name="profile_image" accept="image/*">
+            </div>
+
+            <div class="field">
+                <label class="label">Display Name</label>
+                <input class="input" name="display_name" required>
+            </div>
+
+            <div class="field">
+                <label class="label">State of Origin</label>
+                <input class="input" name="state">
+            </div>
+
+            <div class="field">
+                <label class="label">Hometown</label>
+                <input class="input" name="hometown">
+            </div>
+
+            <div class="field">
+                <label class="label">Squad</label>
+                <input class="input" name="squad">
+            </div>
+
+            <div class="field">
+                <label class="label">Qualification</label>
+                <select class="input" name="qualification">
+                    <option value=""> Select Qualification </option>
+                    <option value="BSc"> BSc </option>
+                    <option value="BA"> BA </option>
+                    <option value="LLB"> LLB </option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="label">Department</label>
+                <input class="input" name="department">
+            </div>
+
+            <div class="field">
+                <label class="label">Date of Birth(Optional)</label>
+                <input class="input" name="date_of_birth" placeholder="yyyy-mm-dd">
+            </div>
+
+            <div class="divider"></div>
+
+            <button class="login-button" type="submit">Save Profile</button>
+        </form>
+
+        {% if error_message %}
+            <p class="error-message">{{ error_message }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
