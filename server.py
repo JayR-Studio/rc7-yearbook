@@ -18,10 +18,10 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
 
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "'HaQa@xK2G@X3'")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "HaQa@xK2G@X3")
 app.config["WTF_CSRF_TIME_LIMIT"] = 3600
 Bootstrap5(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///YearBook.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///YearBook.db")
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploads")
 app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "webp"}
 
@@ -523,4 +523,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         # preload_officers()
-    app.run(debug=True)
+    app.run(debug=False)
