@@ -71,7 +71,7 @@ class Officers(db.Model):
     is_paid: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(), nullable=False)
     last_login: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     failed_login_attempts: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     lockout_until: Mapped[datetime] = mapped_column(DateTime, nullable=True)
@@ -84,7 +84,7 @@ class ActivationCodes(db.Model):
     officer_id: Mapped[int] = mapped_column(ForeignKey("officers.id"), nullable=False, unique=True)
 
     is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(), nullable=False)
     used_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
 
 
@@ -111,9 +111,9 @@ class Profiles(db.Model):
     instagram_link: Mapped[str] = mapped_column(String(250), nullable=True)
     x_link: Mapped[str] = mapped_column(String(250), nullable=True)
 
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(UTC),
-                                                 onupdate=lambda: datetime.now(UTC),
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(),
+                                                 onupdate=lambda: datetime.now(),
                                                  nullable=False)
 
 
@@ -426,8 +426,8 @@ def contact():
 def password_login(officer_id):
     officer = db.get_or_404(Officers, officer_id)
 
-    if officer.lockout_until and officer.lockout_until > datetime.now(UTC):
-        remaining = officer.lockout_until - datetime.now(UTC)
+    if officer.lockout_until and officer.lockout_until > datetime.now():
+        remaining = officer.lockout_until - datetime.now()
         minutes_left = max(1, int(remaining.total_seconds() // 60))
         return render_template(
             "password_login.html",
@@ -449,7 +449,7 @@ def password_login(officer_id):
             officer.failed_login_attempts += 1
 
             if officer.failed_login_attempts >= 5:
-                officer.lockout_until = datetime.now(UTC) + timedelta(minutes=15)
+                officer.lockout_until = datetime.now() + timedelta(minutes=15)
                 officer.failed_login_attempts = 0
 
             db.session.commit()
@@ -462,7 +462,7 @@ def password_login(officer_id):
 
         officer.failed_login_attempts = 0
         officer.lockout_until = None
-        officer.last_login = datetime.now(UTC)
+        officer.last_login = datetime.now()
         db.session.commit()
 
         session["officer_id"] = officer.id
@@ -522,5 +522,5 @@ def ratelimit_handler(e):
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-        # preload_officers()
-    app.run(debug=False)
+        preload_officers()
+    app.run(debug=True)
