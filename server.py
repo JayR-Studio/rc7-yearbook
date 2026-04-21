@@ -518,9 +518,16 @@ def ratelimit_handler(e):
 
     return "Too many requests", 429
 
-
-if __name__ == "__main__":
+def initialize_database():
     with app.app_context():
         db.create_all()
-        preload_officers()
+
+        existing_officer = Officers.query.first()
+        if existing_officer is None:
+            preload_officers()
+
+
+initialise_database()
+
+if __name__ == "__main__":
     app.run(debug=False)
