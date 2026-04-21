@@ -523,4 +523,4 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
         preload_officers()
-    app.run(debug=True)
+    app.run(debug=False)
