@@ -1,15 +1,68 @@
 {% extends 'base.html' %}
-{% block title %}About{% endblock %}
+
+{% block title %}About Us{% endblock %}
 
 {% block content %}
 <div class="page">
     <div class="top-gold"></div>
 
-    <div class="login-panel">
-        <h1 class="panel-title">About RC7 Yearbook</h1>
-        <p class="message">
-            This platform was built to showcase and preserve the identities and journeys of Regular Course 7 officers.
-        </p>
-    </div>
+    <section class="info-shell">
+        <div class="info-header">
+            <h1 class="info-title">About the RC7 Officers Yearbook</h1>
+            <p class="info-subtitle">Preserving identity, memory, and continuity for Regular Course 7 officers.</p>
+        </div>
+
+        <div class="info-card">
+            <div class="info-section">
+                <h2 class="info-section-title">Purpose</h2>
+                <p class="info-text">
+                    The RC7 Officers Yearbook was created to preserve the identity, record, and legacy of
+                    Regular Course 7 officers in a secure digital format.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Why It Was Created</h2>
+                <p class="info-text">
+                    At the time of passing out, it was brought to our attention that a yearbook would be important
+                    because of the size of the course and the need for officers to be able to identify one another
+                    in the future. However, the hardcopy yearbook was not produced. This platform was therefore
+                    created to fill that gap in a more practical and lasting way.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Its Advantage</h2>
+                <p class="info-text">
+                    The RC7 Digital Yearbook retains the core benefits of a traditional hardcopy yearbook while
+                    removing many of its limitations. Like a printed yearbook, it serves as a record of identity,
+                    course membership, and shared history. Unlike a hardcopy version, it is accessible from anywhere,
+                    can be updated over time, and remains useful as officers grow in service and posting.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Access and Trust</h2>
+                <p class="info-text">
+                    This platform is strictly for Regular Course 7 officers. Measures have been put in place to
+                    ensure that access is limited to verified RC7 members, so that the information displayed here
+                    remains within the course community.
+                </p>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Our Goal</h2>
+                <p class="info-text">
+                    The goal of this platform is not only to preserve memory, but also to strengthen recognition,
+                    connection, and continuity among RC7 officers over time.
+                </p>
+            </div>
+
+            <div class="info-footer">
+                <p class="info-powered">Powered by <span>JayR-Studio</span></p>
+                <a class="page-link" href="{{ url_for('home') }}">Back to Home</a>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}

@@ -37,8 +37,15 @@
             </div>
 
             <div class="field">
-                <label class="label">Squad</label>
-                <input class="input" name="squad">
+                <label class="label" for="squad">Squad</label>
+                <select class="input" id="squad" name="squad" required>
+                    <option value="">Select Squad</option>
+                        {% for squad in squads %}
+                            <option value="{{ squad }}">
+                                {{ squad }}
+                            </option>
+                        {% endfor %}
+                </select>
             </div>
 
             <div class="field">
@@ -52,13 +59,29 @@
             </div>
 
             <div class="field">
-                <label class="label">Department</label>
-                <input class="input" name="department">
+                <label class="label" for="department">Department</label>
+                <select class="input" id="department" name="department" required>
+                    <option value="">Select Department</option>
+                        {% for department in departments %}
+                            <option value="{{ department }}">
+                                {{ department }}
+                            </option>
+                        {% endfor %}
+                </select>
             </div>
 
             <div class="field">
                 <label class="label">Date of Birth(Optional)</label>
                 <input class="input" name="date_of_birth" placeholder="yyyy-mm-dd">
+            </div>
+
+            <div class="field">
+                <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Inter', sans-serif; line-height:1.5;">
+                    <input type="checkbox" name="consent_given" value="yes" required style="margin-top:4px;">
+                    <span>
+                        I agree to have my submitted profile information displayed on the RC7 Digital Yearbook web app for other RC7 members to view.
+                    </span>
+                </label>
             </div>
 
             <div class="divider"></div>

@@ -13,6 +13,7 @@ from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
+import uuid
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, URL
@@ -39,6 +40,9 @@ limiter = Limiter(
 
 
 csrf = CSRFProtect(app)
+
+SQUADS = [str(i) for i in range(1, 24)]
+DEPT = ["Accounting", "Biological Science", "Biochemistry", "Chemistry", "English", "History & International Studies", "Law", "Management Science", "Mathematics", "Political Science", "Physics", "Sociology"]
 
 
 @app.errorhandler(CSRFError)
@@ -111,12 +115,14 @@ class Profiles(db.Model):
     instagram_link: Mapped[str] = mapped_column(String(250), nullable=True)
     x_link: Mapped[str] = mapped_column(String(250), nullable=True)
 
+    consent_given: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=lambda: datetime.now(),
                                                  onupdate=lambda: datetime.now(),
                                                  nullable=False)
 
 
+# First helper function-loads Rc7 officers into DB table Officers
 def preload_officers():
     df = pd.read_excel("RC7.xlsx")
 
@@ -137,6 +143,7 @@ def preload_officers():
     print("Officers imported successfully.")
 
 
+# Second helper function-ensures the officer is logged in.
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -147,9 +154,24 @@ def login_required(f):
     return decorated_function
 
 
+# Thrid helper function-deletes paths to images in our DB
+def delete_image_file(relative_path: str | None) -> None:
+    if not relative_path:
+        return
+
+    file_path = os.path.join("static", relative_path)
+
+    if os.path.exists(file_path):
+        os.remove(file_path)
+
+
 @app.route('/')
 def welcome():
     return render_template('welcome.html')
+
+
+def normalize_name(name: str) -> [str]:
+    return sorted(part for part in name.strip().upper().split() if part)
 
 
 @app.route('/login', methods=["POST", "GET"])
@@ -165,7 +187,10 @@ def login():
             return render_template('login.html',
                                    error_message="Invalid AP Number")
 
-        if officer.full_name != full_name.strip().upper():
+        name_entered = normalize_name(full_name)
+        name_in_database = normalize_name(officer.full_name)
+
+        if name_in_database != name_entered:
             return render_template('login.html',
                                    error_message="Name does not match our records")
 
@@ -208,14 +233,17 @@ def home():
             )
         )
 
-    if sort == "state":
-        query = query.order_by(Profiles.state_of_origin.asc())
-    elif sort == "squad":
-        query = query.order_by(Profiles.squad.asc())
-    elif sort == "department":
-        query = query.order_by(Profiles.squad.asc())
-    else:
-        query = query.order_by(Profiles.display_name.asc())
+    current_count = Profiles.query.count()
+    total_count = Officers.query.count()
+
+    # if sort == "state":
+    #     query = query.order_by(Profiles.state_of_origin.asc())
+    # elif sort == "squad":
+    #     query = query.order_by(Profiles.squad.asc())
+    # elif sort == "department":
+    #     query = query.order_by(Profiles.squad.asc())
+    # else:
+    #     query = query.order_by(Profiles.display_name.asc())
 
     pagination = query.paginate(page=page, per_page=24, error_out=False)
 
@@ -226,7 +254,8 @@ def home():
         officers=pagination.items,
         pagination=pagination,
         search=search,
-        sort=sort
+        current_count=current_count,
+        total_count=total_count,
     )
 
 
@@ -245,11 +274,19 @@ def create_profile():
         display_name = request.form.get("display_name", "").strip()
         state = request.form.get("state", "").strip()
         hometown = request.form.get("hometown", "").strip()
-        squad = request.form.get("squad", "").strip()
         date_input = request.form.get("date_of_birth")
         profile_image = request.files.get("profile_image")
         department = request.form.get("department").strip()
         qualification = request.form.get("qualification").strip()
+        squad = request.form.get("squad", "").strip()
+        consent_given = request.form.get("consent_given") == "yes"
+
+        if not consent_given:
+            return render_template(
+                "create_profile.html",
+                squads=SQUADS,
+                error_message="Please consent so you can create your profile."
+            )
 
         if date_input:
             try:
@@ -303,6 +340,7 @@ def create_profile():
             profile_image=image_path,
             qualification=qualification,
             department=department,
+            consent_given=consent_given,
         )
 
         db.session.add(profile)
@@ -310,7 +348,7 @@ def create_profile():
 
         return redirect(url_for("home"))
 
-    return render_template("create_profile.html")
+    return render_template("create_profile.html", squads=SQUADS, departments=DEPT)
 
 
 @app.route('/profile/<int:officer_id>')
@@ -339,30 +377,65 @@ def edit_profile():
     profile = Profiles.query.filter_by(officer_id=officer.id).first_or_404()
 
     if request.method == "POST":
-        profile.display_name = request.form.get("display_name", "").strip()
-        profile.state_of_origin = request.form.get("state", "").strip()
-        profile.hometown = request.form.get("hometown", "").strip()
-        profile.squad = request.form.get("squad", "").strip()
-        profile.current_posting = request.form.get("current_posting", "").strip()
-        profile.phone_number = request.form.get("phone_number", "").strip()
-        profile.email = request.form.get("email", "").strip()
-        profile.about_me = request.form.get("about_me", "").strip()
+        display_name = request.form.get("display_name", "").strip()
+        state_of_origin = request.form.get("state", "").strip()
+        hometown = request.form.get("hometown", "").strip()
+        current_posting = request.form.get("current_posting", "").strip()
+        phone_number = request.form.get("phone_number", "").strip()
+        email = request.form.get("email", "").strip()
+        about_me = request.form.get("about_me", "").strip()
+        squad = request.form.get("squad", "").strip()
+        department = request.form.get("department", "").strip()
+
+        if not display_name:
+            return render_template(
+                "edit_profile.html",
+                officer=officer,
+                profile=profile,
+                squads=SQUADS,
+                departments=DEPT,
+                error_message="Display name is required."
+            )
+
+        if squad not in SQUADS:
+            return render_template(
+                "edit_profile.html",
+                officer=officer,
+                profile=profile,
+                squads=SQUADS,
+                departments=DEPT,
+                error_message="Please select a valid squad."
+            )
+
+        if department not in DEPT:
+            return render_template(
+                "edit_profile.html",
+                officer=officer,
+                profile=profile,
+                squads=SQUADS,
+                departments=DEPT,
+                error_message="Please select a valid department."
+            )
 
         date_input = request.form.get("date_of_birth", "").strip()
         if date_input:
             try:
-                profile.date_of_birth = datetime.strptime(date_input, "%Y-%m-%d").date()
+                date_of_birth = datetime.strptime(date_input, "%Y-%m-%d").date()
             except ValueError:
                 return render_template(
                     "edit_profile.html",
                     officer=officer,
                     profile=profile,
+                    squads=SQUADS,
+                    departments=DEPT,
                     error_message="Invalid date format. Please use YYYY-MM-DD."
                 )
         else:
-            profile.date_of_birth = None
+            date_of_birth = None
 
+        old_image_path = profile.profile_image
         new_image = request.files.get("profile_image")
+        new_image_path = old_image_path
 
         if new_image and new_image.filename != "":
             if not allowed_file(new_image.filename):
@@ -370,13 +443,12 @@ def edit_profile():
                     "edit_profile.html",
                     officer=officer,
                     profile=profile,
+                    squads=SQUADS,
+                    departments=DEPT,
                     error_message="Invalid image format. Use PNG, JPG, JPEG, or WEBP."
                 )
 
-            original_filename = secure_filename(new_image.filename)
-            base_name = os.path.splitext(original_filename)[0]
-            filename = f"{base_name}.jpg"
-
+            filename = f"{uuid.uuid4().hex}.jpg"
             os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
             save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
@@ -387,21 +459,34 @@ def edit_profile():
             img.thumbnail((900, 900))
             img.save(save_path, format="JPEG", quality=95, optimize=True)
 
-            profile.profile_image = os.path.join("uploads", filename).replace("\\", "/")
+            new_image_path = os.path.join("uploads", filename).replace("\\", "/")
 
-        if not profile.display_name:
-            return render_template(
-                "edit_profile.html",
-                officer=officer,
-                profile=profile,
-                error_message="Display name is required."
-            )
+        profile.display_name = display_name
+        profile.state_of_origin = state_of_origin
+        profile.hometown = hometown
+        profile.current_posting = current_posting
+        profile.phone_number = phone_number
+        profile.email = email
+        profile.about_me = about_me
+        profile.squad = squad
+        profile.department = department
+        profile.date_of_birth = date_of_birth
+        profile.profile_image = new_image_path
 
         db.session.commit()
+
+        if old_image_path and old_image_path != new_image_path:
+            delete_image_file(old_image_path)
+
         return redirect(url_for("view_profile", officer_id=officer.id, updated="1"))
 
-    return render_template("edit_profile.html", officer=officer, profile=profile)
-
+    return render_template(
+        "edit_profile.html",
+        officer=officer,
+        profile=profile,
+        squads=SQUADS,
+        departments=DEPT
+    )
 
 @app.route('/logout')
 def logout():
@@ -518,10 +603,10 @@ def ratelimit_handler(e):
 
     return "Too many requests", 429
 
+
 def initialize_database():
     with app.app_context():
         db.create_all()
-
         existing_officer = Officers.query.first()
         if existing_officer is None:
             preload_officers()
@@ -531,3 +616,4 @@ initialize_database()
 
 if __name__ == "__main__":
     app.run(debug=False)
+        #preload_officers()

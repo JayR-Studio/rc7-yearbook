@@ -41,7 +41,26 @@
 
             <div class="field">
                 <label class="label" for="squad">Squad</label>
-                <input class="input" type="text" id="squad" name="squad" value="{{ profile.squad or '' }}">
+                <select class="input" id="squad" name="squad" required>
+                    <option value="">Select Squad</option>
+                    {% for squad in squads %}
+                        <option value="{{ squad }}" {% if profile.squad == squad %}selected{% endif %}>
+                            {{squad}}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="field">
+                <label class="label" for="department">Department</label>
+                <select class="input" id="department" name="department" required>
+                    <option value="">Select Department</option>
+                    {% for department in departments %}
+                        <option value="{{ department }}" {% if profile.department == department %}selected{% endif %}>
+                            {{department}}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="field">

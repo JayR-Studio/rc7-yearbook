@@ -1,15 +1,77 @@
 {% extends 'base.html' %}
-{% block title %}Contact{% endblock %}
+
+{% block title %}Contact Us{% endblock %}
 
 {% block content %}
 <div class="page">
     <div class="top-gold"></div>
 
-    <div class="login-panel">
-        <h1 class="panel-title">Contact Us</h1>
-        <p class="message">
-            For inquiries or support, contact the developer or your course representative.
-        </p>
-    </div>
+    <section class="info-shell">
+        <div class="info-header">
+            <h1 class="info-title">Contact and Support</h1>
+            <p class="info-subtitle">Reach out for help, corrections, technical issues, and feedback.</p>
+        </div>
+
+        <div class="info-card">
+            <div class="info-section">
+                <h2 class="info-section-title">Why You May Contact Us</h2>
+                <p class="info-text">
+                    If you are experiencing any difficulty with the RC7 Digital Yearbook, you may contact support
+                    for assistance.
+                </p>
+
+                <ul class="info-list">
+                    <li>Login problems</li>
+                    <li>Profile corrections</li>
+                    <li>Image or upload issues</li>
+                    <li>Bug reports</li>
+                    <li>General feedback and suggestions</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Contact Details</h2>
+                <div class="contact-grid">
+                    <div class="contact-item">
+                        <span class="contact-label">Email</span>
+                        <a class="contact-value" href="mailto:jayr431722@gmail.com">jayr431722@gmail.com</a>
+                    </div>
+
+                    <div class="contact-item">
+                        <span class="contact-label">WhatsApp</span>
+                        <a class="contact-value" href="https://wa.me/2348035760418" target="_blank" rel="noopener noreferrer">
+                            08035760418
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">What to Include in Your Message</h2>
+                <p class="info-text">
+                    To make assistance easier, please include enough detail in your message. For example:
+                </p>
+
+                <ul class="info-list">
+                    <li>Your full name</li>
+                    <li>Your AP number</li>
+                    <li>The issue you encountered</li>
+                    <li>The page or action involved</li>
+                    <li>A screenshot, if necessary</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h2 class="info-section-title">Response Time</h2>
+                <p class="info-text">
+                    Please allow some time for a response, especially during periods of high activity.
+                </p>
+            </div>
+
+            <div class="info-footer">
+                <a class="page-link" href="{{ url_for('home') }}">Back to Home</a>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}
