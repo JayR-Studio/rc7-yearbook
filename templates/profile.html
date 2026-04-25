@@ -41,7 +41,7 @@
             <div class="profile-details-column">
                 <div class="profile-identity-block">
                     <p class="profile-rank-badge">{{ officer.rank }}</p>
-                    <h2 class="profile-name">{{ profile.display_name }}</h2>
+                    <h2 class="profile-name">{{ officer.full_name }}</h2>
                     <p class="profile-subtitle">
                         {{ profile.position or "RC7 Officer" }}
                         {% if profile.squad %}
@@ -55,12 +55,17 @@
                 <div class="profile-info-grid">
                     <div class="profile-info-item">
                         <span class="profile-label">Full Name</span>
-                        <span class="profile-value">{{ officer.full_name }}</span>
+                        <span class="profile-value">{{ profile.display_name }}</span>
+                    </div>
+
+                    <div class="profile-info-item">
+                        <span class="profile-label">A.K.A</span>
+                        <span class="profile-value">{{ profile.also_known_as or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
                         <span class="profile-label">Department</span>
-                        <span class="profile-value">{{ profile.department or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.department or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
@@ -70,12 +75,12 @@
 
                     <div class="profile-info-item">
                         <span class="profile-label">State of Origin</span>
-                        <span class="profile-value">{{ profile.state_of_origin or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.state_of_origin or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
                         <span class="profile-label">Hometown</span>
-                        <span class="profile-value">{{ profile.hometown or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.hometown or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
@@ -85,7 +90,7 @@
 
                     <div class="profile-info-item">
                         <span class="profile-label">Current Posting</span>
-                        <span class="profile-value">{{ profile.current_posting or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.current_posting or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
@@ -94,19 +99,19 @@
                             {% if profile.date_of_birth %}
                                 {{ profile.date_of_birth.strftime('%d %B %Y') }}
                             {% else %}
-                                Not provided
+                                Nil
                             {% endif %}
                         </span>
                     </div>
 
                     <div class="profile-info-item">
                         <span class="profile-label">Phone Number</span>
-                        <span class="profile-value">{{ profile.phone_number or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.phone_number or "Nil" }}</span>
                     </div>
 
                     <div class="profile-info-item">
                         <span class="profile-label">Email</span>
-                        <span class="profile-value">{{ profile.email or "Not provided" }}</span>
+                        <span class="profile-value">{{ profile.email or "Nil" }}</span>
                     </div>
                 </div>
 

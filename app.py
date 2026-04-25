@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, current_app
+from flask import Flask, render_template, redirect, url_for, request, session, current_app, abort
 from PIL import Image
 from flask_limiter import Limiter
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -7,22 +7,26 @@ from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Date, or_
-from datetime import datetime, UTC, date, timedelta
+from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from werkzeug.utils import secure_filename
 import os
 import pandas as pd
 import uuid
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired, URL
 
 app = Flask(__name__)
+
+database_url = os.environ.get("DATABASE_URL")
+
+if database_url:
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+else:
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///YearBook.db"
+
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "HaQa@xK2G@X3")
 app.config["WTF_CSRF_TIME_LIMIT"] = 3600
 Bootstrap5(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///YearBook.db")
 app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploads")
 app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "webp"}
 
@@ -38,11 +42,11 @@ limiter = Limiter(
     default_limits=[]
 )
 
-
 csrf = CSRFProtect(app)
 
 SQUADS = [str(i) for i in range(1, 24)]
-DEPT = ["Accounting", "Biological Science", "Biochemistry", "Chemistry", "English", "History & International Studies", "Law", "Management Science", "Mathematics", "Political Science", "Physics", "Sociology"]
+DEPT = ["Accounting", "Biological Science", "Biochemistry", "Chemistry", "English", "History & International Studies",
+        "Law", "Management Science", "Mathematics", "Political Science", "Physics", "Sociology"]
 
 
 @app.errorhandler(CSRFError)
@@ -104,6 +108,7 @@ class Profiles(db.Model):
     qualification: Mapped[str] = mapped_column(String(250), nullable=False)
     department: Mapped[str] = mapped_column(String(250), nullable=False)
 
+    also_known_as: Mapped[str] = mapped_column(String(250), nullable=True)
     current_posting: Mapped[str] = mapped_column(String(250), nullable=True)
     date_of_birth: Mapped[date] = mapped_column(Date, nullable=True)
     phone_number: Mapped[str] = mapped_column(String(20), nullable=True)
@@ -125,22 +130,44 @@ class Profiles(db.Model):
 # First helper function-loads Rc7 officers into DB table Officers
 def preload_officers():
     df = pd.read_excel("RC7.xlsx")
+    print("checking existing officers")
+    existing_ap_numbers = {
+        officer.ap_number
+        for officer in Officers.query.with_entities(Officers.ap_number).all()
+    }
 
-    for index, row in df.iterrows():
+    officers_to_add = []
+
+    print("looping through database")
+    for _, row in df.iterrows():
         ap_number = str(row["AP/NO"]).strip()
-        full_name = str(row["NAME"]).strip()
+        full_name = str(row["NAME"]).strip().upper()
 
-        existing_officer = Officers.query.filter_by(ap_number=ap_number).first()
+        if not ap_number or not full_name:
+            continue
 
-        if existing_officer is None:
-            officer = Officers(
-                full_name=full_name,
-                ap_number=ap_number
-            )
-            db.session.add(officer)
+        if ap_number in existing_ap_numbers:
+            continue
 
+        print("adding officers")
+        officer = Officers(
+            ap_number=ap_number,
+            full_name=full_name,
+            is_activated=False,
+            is_paid=False,
+            is_admin=False,
+            rank="ASP"
+        )
+
+        print("appending officers and ap_number")
+        officers_to_add.append(officer)
+        existing_ap_numbers.add(ap_number)
+
+    print("committing officers")
+    db.session.add_all(officers_to_add)
     db.session.commit()
-    print("Officers imported successfully.")
+
+    print(f"{len(officers_to_add)} officers loaded successfully.")
 
 
 # Second helper function-ensures the officer is logged in.
@@ -181,7 +208,11 @@ def login():
         full_name = request.form.get("full_name", "").strip().upper()
         ap_number = request.form.get("ap_number", "").strip()
 
-        officer = Officers.query.filter_by(ap_number=ap_number).first()
+        officer = db.session.query(
+            Officers.id,
+            Officers.full_name,
+            Officers.is_activated
+        ).filter_by(ap_number=ap_number).first()
 
         if officer is None:
             return render_template('login.html',
@@ -272,6 +303,7 @@ def create_profile():
 
     if request.method == "POST":
         display_name = request.form.get("display_name", "").strip()
+        also_known_as = request.form.get("also_known_as", "").strip()
         state = request.form.get("state", "").strip()
         hometown = request.form.get("hometown", "").strip()
         date_input = request.form.get("date_of_birth")
@@ -341,6 +373,7 @@ def create_profile():
             qualification=qualification,
             department=department,
             consent_given=consent_given,
+            also_known_as=also_known_as,
         )
 
         db.session.add(profile)
@@ -378,6 +411,7 @@ def edit_profile():
 
     if request.method == "POST":
         display_name = request.form.get("display_name", "").strip()
+        also_known_as = request.form.get("also_known_as", "").strip()
         state_of_origin = request.form.get("state", "").strip()
         hometown = request.form.get("hometown", "").strip()
         current_posting = request.form.get("current_posting", "").strip()
@@ -462,6 +496,7 @@ def edit_profile():
             new_image_path = os.path.join("uploads", filename).replace("\\", "/")
 
         profile.display_name = display_name
+        profile.also_known_as = also_known_as
         profile.state_of_origin = state_of_origin
         profile.hometown = hometown
         profile.current_posting = current_posting
@@ -487,6 +522,7 @@ def edit_profile():
         squads=SQUADS,
         departments=DEPT
     )
+
 
 @app.route('/logout')
 def logout():
@@ -590,7 +626,8 @@ def create_password(officer_id):
 @app.errorhandler(429)
 def ratelimit_handler(e):
     if request.endpoint == "login":
-        return render_template("login.html", error_message="Too many attempts. Please wait a minute and try again."), 429
+        return render_template("login.html",
+                               error_message="Too many attempts. Please wait a minute and try again."), 429
 
     if request.endpoint == "password_login":
         officer_id = request.view_args.get("officer_id") if request.view_args else None
@@ -604,16 +641,31 @@ def ratelimit_handler(e):
     return "Too many requests", 429
 
 
-def initialize_database():
-    with app.app_context():
-        db.create_all()
-        existing_officer = Officers.query.first()
-        if existing_officer is None:
-            preload_officers()
+# def initialize_database():
+#     with app.app_context():
+#         db.create_all()
+#         existing_officer = Officers.query.first()
+#         if existing_officer is None:
+#             preload_officers()
+#
+#
+# initialize_database()
 
+# with app.app_context():
+#     db.drop_all()
+#     db.create_all()
+#     preload_officers()
 
-initialize_database()
+# with app.app_context():
+#     print("Checking officers table...")
+#
+#     if Officers.query.first() is None:
+#         print("No officers found. Starting preload...")
+#         preload_officers()
+#         print("Preload finished.")
+#     else:
+#         print("Officers already exist. Skipping preload.")
+
 
 if __name__ == "__main__":
     app.run(debug=False)
-        #preload_officers()

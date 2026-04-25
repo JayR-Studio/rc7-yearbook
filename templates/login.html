@@ -55,7 +55,9 @@
 
             <div class="divider"></div>
 
-            <button class="login-button" type="submit">Continue</button>
+            <button class="login-button" id="loginBtn" type="submit">
+                Continue
+            </button>
         </form>
 
         {% if error_message %}
@@ -69,5 +71,14 @@
         const apInput = document.getElementById("ap_number");
         apInput.type = apInput.type === "password" ? "text" : "password";
     }
+</script>
+<script>
+    const form = document.querySelector("form");
+    const loginBtn = document.getElementById("loginBtn");
+
+    form.addEventListener("submit", function () {
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Checking...";
+    });
 </script>
 {% endblock %}
