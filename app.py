@@ -130,6 +130,8 @@ class PasswordResetRequest(db.Model):
     is_used = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.now())
 
+    officer = db.relationship("Officers", backref="password_reset_requests")
+
 
 # First helper function-loads Rc7 officers into DB table Officers
 def preload_officers():
@@ -473,6 +475,24 @@ def edit_profile():
     )
 
 
+@app.route("/admin/reset-requests")
+@login_required
+def view_reset_requests():
+    officer_id = session.get("officer_id")
+    officer = db.get_or_404(Officers, officer_id)
+
+    # Simple admin check (you can refine later)
+    if not officer.is_admin:
+        return "Access denied", 403
+
+    requests = PasswordResetRequest.query.filter_by(is_handled=False).all()
+
+    return render_template(
+        "admin_reset_requests.html",
+        requests=requests
+    )
+
+
 @app.route('/logout')
 def logout():
     session.pop("officer_id", None)
@@ -599,14 +619,14 @@ def change_password():
         db.session.commit()
 
         return render_template(
-            "change_password.html",
+            redirect(url_for('home')),
             success_message="Password changed successfully."
         )
 
     return render_template("change_password.html")
 
 
-@app.route('/forgot_password', methods=["GET", "POST"])
+@app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip()
@@ -620,33 +640,55 @@ def forgot_password():
         if not officer:
             return render_template(
                 "forgot_password.html",
-                error_message="Invalid details"
+                error_message="Invalid details. Please check your name and AP number."
             )
 
-        # Create reset request
+        existing_request = PasswordResetRequest.query.filter_by(
+            officer_id=officer.id,
+            is_handled=False
+        ).first()
+
+        if existing_request:
+            return render_template(
+                "forgot_password.html",
+                success_message="You already have a pending reset request. Please contact admin."
+            )
+
         reset_request = PasswordResetRequest(officer_id=officer.id)
         db.session.add(reset_request)
         db.session.commit()
 
         return render_template(
             "forgot_password.html",
-            success_message="Request submitted. Contact admin for password reset."
+            success_message="Password reset request submitted successfully. Please contact admin."
         )
 
     return render_template("forgot_password.html")
 
 
-@app.route('/admin/reset-password/<int:officer_id>', methods=["POST"])
+@app.route("/admin/reset-password/<int:officer_id>", methods=["POST"])
+@login_required
 def admin_reset_password(officer_id):
-    officer = db.get_or_404(Officers, officer_id)
+    admin_id = session.get("officer_id")
+    admin = db.get_or_404(Officers, admin_id)
 
+    if not admin.is_admin:
+        return "Access denied", 403
+
+    officer = db.get_or_404(Officers, officer_id)
     new_password = request.form.get("new_password")
 
     officer.password_hash = generate_password_hash(new_password)
+
+    # Mark request as handled
+    PasswordResetRequest.query.filter_by(
+        officer_id=officer.id,
+        is_handled=False
+    ).update({"is_handled": True})
+
     db.session.commit()
 
-    return "Password reset successful"
-
+    return redirect(url_for("view_reset_requests"))
 #
 # @app.route("/upload-image", methods=["POST"])
 # @login_required

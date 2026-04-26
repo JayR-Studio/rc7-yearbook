@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Reset Requests{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="top-gold"></div>
+
+    <div class="login-panel">
+        <h1 class="panel-title">Password Reset Requests</h1>
+
+        {% for req in requests %}
+            <div style="border-bottom:1px solid #444; padding:10px 0;">
+                <p><strong>Name:</strong> {{ req.officer.full_name }}</p>
+                <p><strong>AP Number:</strong> {{ req.officer.ap_number }}</p>
+                <p><strong>Requested:</strong> {{ req.created_at }}</p>
+
+                <form method="POST" action="{{ url_for('admin_reset_password', officer_id=req.officer.id) }}">
+                    <input class="input" name="new_password" placeholder="New temporary password" required>
+                    <button class="login-button" type="submit">Reset Password</button>
+                </form>
+            </div>
+        {% endfor %}
+
+        {% if not requests %}
+            <p>No pending requests.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
