@@ -18,7 +18,8 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="field">
                 <label class="label" for="profile_image">Profile Picture</label>
-                <input class="input" type="file" id="profile_image" name="profile_image" accept="image/*">
+                <input class= "input" type="file" name="profile_image" id="profile_image">
+                <input class="input" type="hidden" id="profile_image_url" name="profile_image_url">
             </div>
 
             <div class="field">
@@ -72,7 +73,7 @@
 
             <div class="field">
                 <label class="label">Date of Birth(Optional)</label>
-                <input class="input" name="date_of_birth" placeholder="yyyy-mm-dd">
+                <input class="input" type="date" name="date_of_birth" placeholder="yyyy-mm-dd">
             </div>
 
             <div class="field">
@@ -86,7 +87,9 @@
 
             <div class="divider"></div>
 
-            <button class="login-button" type="submit">Save Profile</button>
+            <button class="login-button" id="loginBtn" type="submit">
+                Save Profile
+            </button>
         </form>
 
         {% if error_message %}
@@ -94,4 +97,47 @@
         {% endif %}
     </div>
 </div>
+<script>
+  const form = document.querySelector("form");
+  const fileInput = document.getElementById("profile_image");
+  const hiddenInput = document.getElementById("profile_image_url");
+  const loginBtn = document.getElementById("loginBtn");
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Saving...";
+
+    const file = fileInput.files[0];
+
+    try {
+      if (file) {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "x-vercel-filename": file.name,
+          },
+          body: file,
+        });
+
+        if (!response.ok) {
+          throw new Error("Image upload failed");
+        }
+
+        const blob = await response.json();
+        hiddenInput.value = blob.url;
+      }
+
+      form.submit();
+
+    } catch (error) {
+      console.error(error);
+      alert("Image upload failed. Please try again with a smaller image.");
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Save Profile";
+    }
+  });
+</script>
 {% endblock %}

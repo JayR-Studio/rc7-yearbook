@@ -21,7 +21,8 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="field">
                 <label class="label" for="profile_image">Replace Profile Picture</label>
-                <input class="input" type="file" id="profile_image" name="profile_image" accept="image/*">
+                <input class= "input" type="file" name="profile_image" id="profile_image">
+                <input class="input" type="hidden" id="profile_image_url" name="profile_image_url">
             </div>
 
             <div class="field">
@@ -30,7 +31,7 @@
             </div>
 
             <div class="field">
-                <label class="label" for="display_name">A.K.A</label>
+                <label class="label" for="also_known_as">A.K.A</label>
                 <input class="input" type="text" id="also_known_as" name="also_known_as" value="{{ profile.also_known_as or '' }}" >
             </div>
 
@@ -101,7 +102,9 @@
 
             <div class="divider"></div>
 
-            <button class="login-button" type="submit">Save Changes</button>
+            <button class="login-button" id="loginBtn" type="submit">
+                Save Changes
+            </button>
         </form>
 
         {% if error_message %}
@@ -109,4 +112,47 @@
         {% endif %}
     </div>
 </div>
+<script>
+  const form = document.querySelector("form");
+  const fileInput = document.getElementById("profile_image");
+  const hiddenInput = document.getElementById("profile_image_url");
+  const loginBtn = document.getElementById("loginBtn");
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Saving...";
+
+    const file = fileInput.files[0];
+
+    try {
+      if (file) {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "x-vercel-filename": file.name,
+          },
+          body: file,
+        });
+
+        if (!response.ok) {
+          throw new Error("Image upload failed");
+        }
+
+        const blob = await response.json();
+        hiddenInput.value = blob.url;
+      }
+
+      form.submit();
+
+    } catch (error) {
+      console.error(error);
+      alert("Image upload failed. Please try again with a smaller image.");
+
+      loginBtn.disabled = false;
+      loginBtn.textContent = "Save Profile";
+    }
+  });
+</script>
 {% endblock %}

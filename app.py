@@ -307,9 +307,9 @@ def create_profile():
         state = request.form.get("state", "").strip()
         hometown = request.form.get("hometown", "").strip()
         date_input = request.form.get("date_of_birth")
-        profile_image = request.files.get("profile_image")
-        department = request.form.get("department").strip()
-        qualification = request.form.get("qualification").strip()
+        profile_image_url = request.form.get("profile_image_url")
+        department = request.form.get("department", "").strip()
+        qualification = request.form.get("qualification", "").strip()
         squad = request.form.get("squad", "").strip()
         consent_given = request.form.get("consent_given") == "yes"
 
@@ -337,31 +337,6 @@ def create_profile():
                 error_message="Display name is required."
             )
 
-        image_path = None
-
-        if profile_image and profile_image.filename:
-            if not allowed_file(profile_image.filename):
-                return render_template(
-                    "create_profile.html",
-                    error_message="Invalid image format. Use PNG, JPG, JPEG, or WEBP."
-                )
-
-            original_filename = secure_filename(profile_image.filename)
-            base_name = os.path.splitext(original_filename)[0]
-            filename = f"{base_name}.jpg"
-
-            os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-            save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            profile_image.save(save_path)
-
-            img = Image.open(save_path)
-            img = img.convert("RGB")
-            img.thumbnail((900, 900))
-            img.save(save_path, format="JPEG", quality=95, optimize=True)
-
-            image_path = os.path.join("uploads", filename).replace("\\", "/")
-
         profile = Profiles(
             officer_id=officer.id,
             display_name=display_name,
@@ -369,7 +344,7 @@ def create_profile():
             hometown=hometown,
             squad=squad,
             date_of_birth=date_of_birth,
-            profile_image=image_path,
+            profile_image=profile_image_url,
             qualification=qualification,
             department=department,
             consent_given=consent_given,
@@ -420,6 +395,7 @@ def edit_profile():
         about_me = request.form.get("about_me", "").strip()
         squad = request.form.get("squad", "").strip()
         department = request.form.get("department", "").strip()
+        profile_image_url = request.form.get("profile_image_url")
 
         if not display_name:
             return render_template(
@@ -467,34 +443,6 @@ def edit_profile():
         else:
             date_of_birth = None
 
-        old_image_path = profile.profile_image
-        new_image = request.files.get("profile_image")
-        new_image_path = old_image_path
-
-        if new_image and new_image.filename != "":
-            if not allowed_file(new_image.filename):
-                return render_template(
-                    "edit_profile.html",
-                    officer=officer,
-                    profile=profile,
-                    squads=SQUADS,
-                    departments=DEPT,
-                    error_message="Invalid image format. Use PNG, JPG, JPEG, or WEBP."
-                )
-
-            filename = f"{uuid.uuid4().hex}.jpg"
-            os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
-
-            save_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
-            new_image.save(save_path)
-
-            img = Image.open(save_path)
-            img = img.convert("RGB")
-            img.thumbnail((900, 900))
-            img.save(save_path, format="JPEG", quality=95, optimize=True)
-
-            new_image_path = os.path.join("uploads", filename).replace("\\", "/")
-
         profile.display_name = display_name
         profile.also_known_as = also_known_as
         profile.state_of_origin = state_of_origin
@@ -506,14 +454,11 @@ def edit_profile():
         profile.squad = squad
         profile.department = department
         profile.date_of_birth = date_of_birth
-        profile.profile_image = new_image_path
+        if profile_image_url:
+            profile.profile_image = profile_image_url
 
         db.session.commit()
-
-        if old_image_path and old_image_path != new_image_path:
-            delete_image_file(old_image_path)
-
-        return redirect(url_for("view_profile", officer_id=officer.id, updated="1"))
+        return redirect(url_for("view_profile", officer_id=officer.id))
 
     return render_template(
         "edit_profile.html",
@@ -639,31 +584,6 @@ def ratelimit_handler(e):
         ), 429
 
     return "Too many requests", 429
-
-
-# def initialize_database():
-#     with app.app_context():
-#         db.create_all()
-#         existing_officer = Officers.query.first()
-#         if existing_officer is None:
-#             preload_officers()
-#
-#
-# initialize_database()
-
-# with app.app_context():
-#     db.create_all()
-#     preload_officers()
-
-# with app.app_context():
-#     print("Checking officers table...")
-#
-#     if Officers.query.first() is None:
-#         print("No officers found. Starting preload...")
-#         preload_officers()
-#         print("Preload finished.")
-#     else:
-#         print("Officers already exist. Skipping preload.")
 
 
 if __name__ == "__main__":
