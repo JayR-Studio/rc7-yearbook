@@ -16,6 +16,8 @@
                 <p><strong>Requested:</strong> {{ req.created_at }}</p>
 
                 <form method="POST" action="{{ url_for('admin_reset_password', officer_id=req.officer.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
                     <input class="input" name="new_password" placeholder="New temporary password" required>
                     <button class="login-button" type="submit">Reset Password</button>
                 </form>
