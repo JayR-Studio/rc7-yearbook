@@ -3,9 +3,17 @@
     {
       "src": "app.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "api/upload.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
+    {
+      "src": "/api/upload",
+      "dest": "api/upload.py"
+    },
     {
       "src": "/(.*)",
       "dest": "app.py"
