@@ -283,6 +283,9 @@ def home():
     #     query = query.order_by(Profiles.display_name.asc())
 
     pagination = query.paginate(page=page, per_page=24, error_out=False)
+    current_user_profile = Profiles.query.filter_by(
+        officer_id=session.get("officer_id")
+    ).first()
 
     return render_template(
         "home.html",
@@ -293,6 +296,7 @@ def home():
         search=search,
         current_count=current_count,
         total_count=total_count,
+        current_user_profile=current_user_profile,
     )
 
 

@@ -11,16 +11,23 @@
             <div class="yearbook-brand">
                 <div class="brand-left">
                     <img
-                        class="brand-logo"
-                        src="{{ url_for('static', filename='image/logo.png') }}"
-                        alt="RC7 Logo"
+                            class="brand-logo"
+                            src="{{ url_for('static', filename='image/logo.png') }}"
+                            alt="RC7 Logo"
                     >
 
-                    <a href="{{ url_for('view_profile', officer_id=session.get('officer_id')) if session.get('officer_id') else '#' }}" class="header-icon">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="8" r="4"/>
-                            <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
-                        </svg>
+                    <a href="{{ url_for('view_profile', officer_id=session.get('officer_id')) }}"
+                       class="nav-profile-photo-link"
+                       title="My Profile">
+                        {% if current_user_profile and current_user_profile.profile_image %}
+                        <img
+                                class="nav-profile-photo"
+                                src="{{ current_user_profile.profile_image }}"
+                                alt="My Profile"
+                        >
+                        {% else %}
+                        <span class="nav-profile-fallback">Me</span>
+                        {% endif %}
                     </a>
                 </div>
 
@@ -30,28 +37,15 @@
                 </div>
 
                 <div class="header-actions">
-                    <a href="{{ url_for('about') }}" class="header-icon" title="About Us">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="12" y1="10" x2="12" y2="16"/>
-                            <circle cx="12" cy="7" r="1"/>
-                        </svg>
-                    </a>
+                    <button class="hamburger-button" type="button" onclick="toggleHeaderMenu()" aria-label="Open menu">
+                        ☰
+                    </button>
 
-                    <a href="{{ url_for('contact') }}" class="header-icon" title="Contact Us">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="5" width="18" height="14" rx="2"/>
-                            <path d="M3 7l9 6 9-6"/>
-                        </svg>
-                    </a>
-
-                    <a href="{{ url_for('logout') }}" class="header-icon" title="Logout">
-                        <svg viewBox="0 0 24 24" fill="none">
-                            <path d="M16 17l5-5-5-5"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        </svg>
-                    </a>
+                    <div class="header-menu" id="headerMenu">
+                        <a href="{{ url_for('about') }}">About Us</a>
+                        <a href="{{ url_for('contact') }}">Contact Us</a>
+                        <a href="{{ url_for('logout') }}">Logout</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -60,11 +54,11 @@
             <form method="GET" action="{{ url_for('home') }}" class="toolbar-form">
                 <div class="search-wrap">
                     <input
-                        class="input toolbar-input"
-                        type="text"
-                        name="search"
-                        placeholder="Search officers by name, state, squad..."
-                        value="{{ search }}"
+                            class="input toolbar-input"
+                            type="text"
+                            name="search"
+                            placeholder="Search officers by name, state, squad..."
+                            value="{{ search }}"
                     >
                     <button class="search-icon-button" type="submit" aria-label="Search">
                         <svg viewBox="0 0 24 24" fill="none">
@@ -88,67 +82,73 @@
         <section class="cards-shell">
             <div class="officer-grid">
                 {% for profile, officer in officers %}
-                    <a class="officer-card" href="{{ url_for('view_profile', officer_id=officer.id) }}">
-                        <div class="officer-card-image-wrap">
-                            {% if profile.profile_image %}
-                                <img class="officer-card-image" src="{{ profile.profile_image }}" alt="Profile image">
-                            {% else %}
-                                <div class="officer-card-placeholder">No Image</div>
-                            {% endif %}
-                        </div>
+                <a class="officer-card" href="{{ url_for('view_profile', officer_id=officer.id) }}">
+                    <div class="officer-card-image-wrap">
+                        {% if profile.profile_image %}
+                        <img class="officer-card-image" src="{{ profile.profile_image }}" alt="Profile image">
+                        {% else %}
+                        <div class="officer-card-placeholder">No Image</div>
+                        {% endif %}
+                    </div>
 
-                        <div class="officer-card-body">
-                            <h2 class="officer-card-name">{{ officer.rank }} {{ profile.display_name }}</h2>
-                            <p class="officer-card-meta">Squad {{ profile.squad }}</p>
-                            <p class="officer-card-meta">{{ profile.state_of_origin or "State not set" }}</p>
-                        </div>
-                    </a>
+                    <div class="officer-card-body">
+                        <h2 class="officer-card-name">{{ officer.rank }} {{ profile.display_name }}</h2>
+                        <p class="officer-card-meta">Squad {{ profile.squad }}</p>
+                        <p class="officer-card-meta">{{ profile.state_of_origin or "State not set" }}</p>
+                    </div>
+                </a>
                 {% endfor %}
             </div>
 
             {% if not officers %}
-                <div class="empty-state">
-                    <div class="empty-state-icon">⌕</div>
-                    <h2 class="empty-state-title">No officers found</h2>
-                    <p class="empty-state-text">
-                        We could not find any officer matching your search.
-                    </p>
-                    <a class="page-link" href="{{ url_for('home') }}">Clear Search</a>
-                </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">⌕</div>
+                <h2 class="empty-state-title">No officers found</h2>
+                <p class="empty-state-text">
+                    We could not find any officer matching your search.
+                </p>
+                <a class="page-link" href="{{ url_for('home') }}">Clear Search</a>
+            </div>
             {% endif %}
         </section>
 
         {% if pagination.pages > 1 %}
-            <section class="pagination-shell">
-                <div class="pagination-bar">
-                    {% if pagination.has_prev %}
-                        <a class="page-link" href="{{ url_for('home', page=pagination.prev_num, search=search) }}">
-                            Previous
-                        </a>
-                    {% endif %}
+        <section class="pagination-shell">
+            <div class="pagination-bar">
+                {% if pagination.has_prev %}
+                <a class="page-link" href="{{ url_for('home', page=pagination.prev_num, search=search) }}">
+                    Previous
+                </a>
+                {% endif %}
 
-                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
-                        {% if page_num %}
-                            {% if page_num == pagination.page %}
-                                <span class="page-link active-page">{{ page_num }}</span>
-                            {% else %}
-                                <a class="page-link" href="{{ url_for('home', page=page_num, search=search) }}">
-                                    {{ page_num }}
-                                </a>
-                            {% endif %}
-                        {% else %}
-                            <span class="page-link ellipsis">...</span>
-                        {% endif %}
-                    {% endfor %}
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+                {% if page_num %}
+                {% if page_num == pagination.page %}
+                <span class="page-link active-page">{{ page_num }}</span>
+                {% else %}
+                <a class="page-link" href="{{ url_for('home', page=page_num, search=search) }}">
+                    {{ page_num }}
+                </a>
+                {% endif %}
+                {% else %}
+                <span class="page-link ellipsis">...</span>
+                {% endif %}
+                {% endfor %}
 
-                    {% if pagination.has_next %}
-                        <a class="page-link" href="{{ url_for('home', page=pagination.next_num, search=search) }}">
-                            Next
-                        </a>
-                    {% endif %}
-                </div>
-            </section>
+                {% if pagination.has_next %}
+                <a class="page-link" href="{{ url_for('home', page=pagination.next_num, search=search) }}">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+        </section>
         {% endif %}
     </section>
 </div>
+<script>
+    function toggleHeaderMenu() {
+        const menu = document.getElementById("headerMenu");
+        menu.classList.toggle("show-menu");
+    }
+</script>
 {% endblock %}
