@@ -28,11 +28,7 @@
         <div class="profile-card">
             <div class="profile-image-column">
                 {% if profile.profile_image %}
-                    <img
-                        class="profile-main-image"
-                        src="{{ url_for('static', filename=profile.profile_image) }}"
-                        alt="{{ profile.display_name }}"
-                    >
+                    <img src="{{ profile.profile_image }}" alt="Profile image">
                 {% else %}
                     <div class="profile-main-placeholder">No Image</div>
                 {% endif %}

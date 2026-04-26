@@ -563,7 +563,10 @@ h1, h2, h3, h4, h5, h6,
 }
 
 .officer-card-image-wrap {
+    width: 100%;
     height: 220px;
+    object-fit: cover;
+    object-position: center top;
     background: #1c1608;
     overflow: hidden;
 }
