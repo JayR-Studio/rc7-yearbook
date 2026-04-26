@@ -77,10 +77,11 @@
             </div>
 
             <div class="field">
-                <label style="display:flex; align-items:flex-start; gap:10px; font-family:'Inter', sans-serif; line-height:1.5;">
-                    <input type="checkbox" name="consent_given" value="yes" required style="margin-top:4px;">
+                <label class="consent-label">
+                    <input type="checkbox" name="consent_given" value="yes" required>
                     <span>
-                        I agree to have my submitted profile information displayed on the RC7 Digital Yearbook web app for other RC7 members to view.
+                        I agree to the
+                        <a href="{{ url_for('consent') }}" target="_blank">Terms and Consent</a>
                     </span>
                 </label>
             </div>

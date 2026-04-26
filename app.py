@@ -480,6 +480,11 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route("/consent")
+def consent():
+    return render_template("consent.html")
+
+
 @app.route('/about')
 @login_required
 def about():

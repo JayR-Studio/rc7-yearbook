@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Terms and Consent{% endblock %}
+
+{% block content %}
+<div class="consent-page">
+
+    <div class="consent-card">
+        <h1 class="consent-title">🔒 Terms and Consent</h1>
+        <p class="consent-subtitle">
+            Please read carefully before creating your profile.
+        </p>
+
+        <div class="consent-section">
+            <h2>1. Platform Purpose</h2>
+            <p>
+                This platform is a private initiative created for members of Regular Course 7 (RC7) to help foster connection and maintain professional relationships among coursemates.
+            </p>
+        </div>
+
+        <div class="consent-section">
+            <h2>2. Non-Official Status</h2>
+            <p>
+                This platform is not an official Nigeria Police platform and is not affiliated with, endorsed by, or representing the Nigeria Police Force in any capacity.
+            </p>
+        </div>
+
+        <div class="consent-section">
+            <h2>3. User Responsibility</h2>
+            <p>
+                Users are solely responsible for the information they choose to share on this platform.
+            </p>
+        </div>
+
+        <div class="consent-section highlight">
+            <h2>4. Restricted Content</h2>
+            <p>
+                Do not upload or disclose any sensitive, confidential, or operational information, including details of assignments, units, or duties that may compromise personal or organizational security.
+            </p>
+        </div>
+
+        <div class="consent-section">
+            <h2>5. Intended Use</h2>
+            <p>
+                This platform is strictly for personal and professional networking within RC7.
+            </p>
+        </div>
+
+        <div class="consent-footer">
+            <a href="{{ url_for('create_profile') }}" class="consent-back-btn">
+                ← Back to Profile Creation
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
