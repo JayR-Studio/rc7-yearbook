@@ -485,7 +485,7 @@ def view_reset_requests():
     if not officer.is_admin:
         return "Access denied", 403
 
-    requests = PasswordResetRequest.query.filter_by(is_handled=False).all()
+    requests = PasswordResetRequest.query.filter_by(is_used=False).all()
 
     return render_template(
         "admin_reset_requests.html",
@@ -645,7 +645,7 @@ def forgot_password():
 
         existing_request = PasswordResetRequest.query.filter_by(
             officer_id=officer.id,
-            is_handled=False
+            is_used=False
         ).first()
 
         if existing_request:
@@ -683,8 +683,8 @@ def admin_reset_password(officer_id):
     # Mark request as handled
     PasswordResetRequest.query.filter_by(
         officer_id=officer.id,
-        is_handled=False
-    ).update({"is_handled": True})
+        is_used=False
+    ).update({"is_used": True})
 
     db.session.commit()
 
