@@ -1394,3 +1394,12 @@ textarea.input {
 .progress-total {
     color: #e2c980;
 }
+
+.success-message {
+    color: #b7f7c1;
+    text-align: center;
+    margin-top: 15px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}

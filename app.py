@@ -124,6 +124,13 @@ class Profiles(db.Model):
                                                  nullable=False)
 
 
+class PasswordResetRequest(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    officer_id = db.Column(db.Integer, db.ForeignKey('officers.id'), nullable=False)
+    is_used = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.now())
+
+
 # First helper function-loads Rc7 officers into DB table Officers
 def preload_officers():
     df = pd.read_excel("RC7.xlsx")
@@ -565,24 +572,100 @@ def create_password(officer_id):
     return render_template("create_password.html", officer=officer)
 
 
-@app.route("/upload-image", methods=["POST"])
+@app.route("/change_password", methods=["GET", "POST"])
 @login_required
-def upload_image():
-    from vercel.blob import BlobClient
+def change_password():
+    officer_id = session.get("officer_id")
+    officer = db.get_or_404(Officers, officer_id)
 
-    filename = request.headers.get("x-vercel-filename", "profile-image.jpg")
-    file_bytes = request.get_data()
+    if request.method == "POST":
+        current_password = request.form.get("current_password", "")
+        new_password = request.form.get("new_password", "")
+        confirm_password = request.form.get("confirm_password", "")
 
-    client = BlobClient()
+        if not check_password_hash(officer.password_hash, current_password):
+            return render_template(
+                "change_password.html",
+                error_message="Current password is incorrect."
+            )
 
-    blob = client.put(
-        filename,
-        file_bytes,
-        access="public",
-        add_random_suffix=True
-    )
+        if new_password != confirm_password:
+            return render_template(
+                "change_password.html",
+                error_message="New passwords do not match."
+            )
 
-    return {"url": blob.url}
+        officer.password_hash = generate_password_hash(new_password)
+        db.session.commit()
+
+        return render_template(
+            "change_password.html",
+            success_message="Password changed successfully."
+        )
+
+    return render_template("change_password.html")
+
+
+@app.route('/forgot_password', methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        full_name = request.form.get("full_name", "").strip()
+        ap_number = request.form.get("ap_number", "").strip()
+
+        officer = Officers.query.filter_by(
+            full_name=full_name,
+            ap_number=ap_number
+        ).first()
+
+        if not officer:
+            return render_template(
+                "forgot_password.html",
+                error_message="Invalid details"
+            )
+
+        # Create reset request
+        reset_request = PasswordResetRequest(officer_id=officer.id)
+        db.session.add(reset_request)
+        db.session.commit()
+
+        return render_template(
+            "forgot_password.html",
+            success_message="Request submitted. Contact admin for password reset."
+        )
+
+    return render_template("forgot_password.html")
+
+
+@app.route('/admin/reset-password/<int:officer_id>', methods=["POST"])
+def admin_reset_password(officer_id):
+    officer = db.get_or_404(Officers, officer_id)
+
+    new_password = request.form.get("new_password")
+
+    officer.password_hash = generate_password_hash(new_password)
+    db.session.commit()
+
+    return "Password reset successful"
+
+#
+# @app.route("/upload-image", methods=["POST"])
+# @login_required
+# def upload_image():
+#     from vercel.blob import BlobClient
+#
+#     filename = request.headers.get("x-vercel-filename", "profile-image.jpg")
+#     file_bytes = request.get_data()
+#
+#     client = BlobClient()
+#
+#     blob = client.put(
+#         filename,
+#         file_bytes,
+#         access="public",
+#         add_random_suffix=True
+#     )
+#
+#     return {"url": blob.url}
 
 
 @app.errorhandler(429)
