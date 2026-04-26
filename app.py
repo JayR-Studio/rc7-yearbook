@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, session, current_app, abort
+from flask import Flask, render_template, redirect, url_for, request, session
 from flask_limiter import Limiter
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_limiter.util import get_remote_address
@@ -24,8 +24,6 @@ else:
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "HaQa@xK2G@X3")
 app.config["WTF_CSRF_TIME_LIMIT"] = 3600
 Bootstrap5(app)
-app.config["UPLOAD_FOLDER"] = os.path.join("static", "uploads")
-app.config["ALLOWED_EXTENSIONS"] = {"png", "jpg", "jpeg", "webp"}
 
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
@@ -49,11 +47,6 @@ DEPT = ["Accounting", "Biological Science", "Biochemistry", "Chemistry", "Englis
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
     return render_template("csrf_error.html", reason=e.description), 400
-
-
-# Helper Function
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in app.config["ALLOWED_EXTENSIONS"]
 
 
 class Base(DeclarativeBase):
@@ -136,7 +129,6 @@ class PasswordResetRequest(db.Model):
 # First helper function-loads Rc7 officers into DB table Officers
 def preload_officers():
     df = pd.read_excel("RC7.xlsx")
-    print("checking existing officers")
     existing_ap_numbers = {
         officer.ap_number
         for officer in Officers.query.with_entities(Officers.ap_number).all()
@@ -144,7 +136,6 @@ def preload_officers():
 
     officers_to_add = []
 
-    print("looping through database")
     for _, row in df.iterrows():
         ap_number = str(row["AP/NO"]).strip()
         full_name = str(row["NAME"]).strip().upper()
@@ -155,7 +146,6 @@ def preload_officers():
         if ap_number in existing_ap_numbers:
             continue
 
-        print("adding officers")
         officer = Officers(
             ap_number=ap_number,
             full_name=full_name,
@@ -165,11 +155,9 @@ def preload_officers():
             rank="ASP"
         )
 
-        print("appending officers and ap_number")
         officers_to_add.append(officer)
         existing_ap_numbers.add(ap_number)
 
-    print("committing officers")
     db.session.add_all(officers_to_add)
     db.session.commit()
 
@@ -185,17 +173,6 @@ def login_required(f):
         return f(*args, **kwargs)
 
     return decorated_function
-
-
-# Thrid helper function-deletes paths to images in our DB
-def delete_image_file(relative_path: str | None) -> None:
-    if not relative_path:
-        return
-
-    file_path = os.path.join("static", relative_path)
-
-    if os.path.exists(file_path):
-        os.remove(file_path)
 
 
 @app.route('/')
@@ -690,25 +667,6 @@ def admin_reset_password(officer_id):
     db.session.commit()
 
     return redirect(url_for("view_reset_requests"))
-#
-# @app.route("/upload-image", methods=["POST"])
-# @login_required
-# def upload_image():
-#     from vercel.blob import BlobClient
-#
-#     filename = request.headers.get("x-vercel-filename", "profile-image.jpg")
-#     file_bytes = request.get_data()
-#
-#     client = BlobClient()
-#
-#     blob = client.put(
-#         filename,
-#         file_bytes,
-#         access="public",
-#         add_random_suffix=True
-#     )
-#
-#     return {"url": blob.url}
 
 
 @app.errorhandler(429)
@@ -727,6 +685,11 @@ def ratelimit_handler(e):
         ), 429
 
     return "Too many requests", 429
+
+
+@app.route("/robots.txt")
+def robots_txt():
+    return app.send_static_file("robots.txt")
 
 
 if __name__ == "__main__":
