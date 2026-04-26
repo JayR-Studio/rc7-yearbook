@@ -11,3 +11,4 @@ requests==2.31.0
 SQLAlchemy==2.0.25
 WTForms==3.0.1
 psycopg2-binary
+vercel-blob
