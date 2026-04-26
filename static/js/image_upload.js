@@ -61,7 +61,7 @@
       if (file) {
         const compressedFile = await compressImage(file);
 
-        const response = await fetch("/api/upload", {
+        const response = await fetch("/upload-image", {
           method: "POST",
           headers: {
             "x-vercel-filename": compressedFile.name,

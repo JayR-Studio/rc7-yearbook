@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request, session, current_app, abort
-from PIL import Image
 from flask_limiter import Limiter
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_limiter.util import get_remote_address
@@ -10,10 +9,8 @@ from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Date, or_
 from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-from werkzeug.utils import secure_filename
 import os
 import pandas as pd
-import uuid
 
 app = Flask(__name__)
 
@@ -566,6 +563,26 @@ def create_password(officer_id):
         return redirect(url_for("password_login", officer_id=officer.id))
 
     return render_template("create_password.html", officer=officer)
+
+
+@app.route("/upload-image", methods=["POST"])
+@login_required
+def upload_image():
+    from vercel.blob import BlobClient
+
+    filename = request.headers.get("x-vercel-filename", "profile-image.jpg")
+    file_bytes = request.get_data()
+
+    client = BlobClient()
+
+    blob = client.put(
+        filename,
+        file_bytes,
+        access="public",
+        add_random_suffix=True
+    )
+
+    return {"url": blob.url}
 
 
 @app.errorhandler(429)
