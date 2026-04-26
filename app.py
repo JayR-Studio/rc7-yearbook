@@ -618,10 +618,7 @@ def change_password():
         officer.password_hash = generate_password_hash(new_password)
         db.session.commit()
 
-        return render_template(
-            redirect(url_for('home')),
-            success_message="Password changed successfully."
-        )
+        return redirect(url_for('home'))
 
     return render_template("change_password.html")
 
