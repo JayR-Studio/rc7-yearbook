@@ -1403,3 +1403,18 @@ textarea.input {
     font-size: 0.95rem;
     line-height: 1.5;
 }
+
+.forgot-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: "Inter", sans-serif;
+    font-size: 0.9rem;
+    color: #d8b35a;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.forgot-link:hover {
+    color: #f2d58a;
+    text-decoration: underline;
+}

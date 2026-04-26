@@ -22,6 +22,13 @@
                     <p class="yearbook-subtitle">Regular Course 7 Digital Archive</p>
                 </div>
 
+                <a href="{{ url_for('view_profile', officer_id=session.get('officer_id')) if session.get('officer_id') else '#' }}" class="header-icon">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                    </svg>
+                </a>
+
                 <div class="header-actions">
                     <a href="{{ url_for('about') }}" class="header-icon" title="About Us">
                         <svg viewBox="0 0 24 24" fill="none">
