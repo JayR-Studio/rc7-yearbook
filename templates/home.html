@@ -84,11 +84,7 @@
                     <a class="officer-card" href="{{ url_for('view_profile', officer_id=officer.id) }}">
                         <div class="officer-card-image-wrap">
                             {% if profile.profile_image %}
-                                <img
-                                    class="officer-card-image"
-                                    src="{{ url_for('static', filename=profile.profile_image) }}"
-                                    alt="{{ profile.display_name }}"
-                                >
+                                <img src="{{ profile.profile_image }}" alt="Profile image">
                             {% else %}
                                 <div class="officer-card-placeholder">No Image</div>
                             {% endif %}
