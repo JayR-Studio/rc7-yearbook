@@ -5,7 +5,7 @@ from flask_limiter.util import get_remote_address
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Date, or_
+from sqlalchemy import Integer, String, Boolean, DateTime, ForeignKey, Date, or_, cast
 from datetime import datetime, date, timedelta
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -240,7 +240,7 @@ def home():
                 Profiles.display_name.ilike(f"%{search}%"),
                 Profiles.state_of_origin.ilike(f"%{search}%"),
                 Profiles.hometown.ilike(f"%{search}%"),
-                Profiles.squad.ilike(f"%{search}%"),
+                cast(Profiles.squad.ilike(f"%{search}%")),
                 Officers.full_name.ilike(f"%{search}%"),
                 Profiles.department.ilike(f"%{search}%"),
                 Profiles.qualification.ilike(f"%{search}%"),
