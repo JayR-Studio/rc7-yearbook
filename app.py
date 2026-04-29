@@ -227,7 +227,6 @@ def home():
         return redirect(url_for("create_profile"))
 
     search = request.args.get("search", "").strip()
-    sort = request.args.get("sort", "name").strip()
     page = request.args.get("page", 1, type=int)
 
     query = db.session.query(Profiles, Officers).join(
@@ -235,29 +234,21 @@ def home():
     )
 
     if search:
-        query = query.filter(
-            or_(
-                Profiles.display_name.ilike(f"%{search}%"),
-                Profiles.state_of_origin.ilike(f"%{search}%"),
-                Profiles.hometown.ilike(f"%{search}%"),
-                cast(Profiles.squad.ilike(f"%{search}%")),
-                Officers.full_name.ilike(f"%{search}%"),
-                Profiles.department.ilike(f"%{search}%"),
-                Profiles.qualification.ilike(f"%{search}%"),
-            )
-        )
+        search_filter = [
+            Profiles.display_name.ilike(f"%{search}%"),
+            Profiles.state_of_origin.ilike(f"%{search}%"),
+            Profiles.hometown.ilike(f"%{search}%"),
+            Officers.full_name.ilike(f"%{search}%"),
+            Profiles.department.ilike(f"%{search}%"),
+        ]
+
+        if search.isdigit():
+            search_filter.append(Profiles.squad == int(search))
+
+        query = query.filter(or_(*search_filter))
 
     current_count = Profiles.query.count()
     total_count = Officers.query.count()
-
-    # if sort == "state":
-    #     query = query.order_by(Profiles.state_of_origin.asc())
-    # elif sort == "squad":
-    #     query = query.order_by(Profiles.squad.asc())
-    # elif sort == "department":
-    #     query = query.order_by(Profiles.squad.asc())
-    # else:
-    #     query = query.order_by(Profiles.display_name.asc())
 
     pagination = query.paginate(page=page, per_page=24, error_out=False)
     current_user_profile = Profiles.query.filter_by(
@@ -698,4 +689,4 @@ def robots_txt():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
